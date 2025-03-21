@@ -13,16 +13,28 @@ function VcDisplayCard({vc}: {vc: any}) {
                 {
                     vc ? Object.keys(vc.credentialSubject)
                         .filter(key => key?.toLowerCase() !== "id" && key?.toLowerCase() !== "type")
-                        .map((key, index) => (
-                            <div className={`py-2.5 px-1 xs:col-end-13 ${(index % 2 === 0) ? "lg:col-start-1 lg:col-end-6" : "lg:col-start-8 lg:col-end-13"}`} key={key}>
-                                <p id={convertToId(key)} className="font-normal text-[11px] break-all">
-                                    {convertToTitleCase(key)}
-                                </p>
-                                <p id={`${convertToId(key)}-value`} className="font-bold text-[12px] break-all">
-                                    {getDisplayValue(vc.credentialSubject[key])}
-                                </p>
-                            </div>
-                        ))
+                        .map((key, index) => {
+                            const value = vc.credentialSubject[key];
+                            const isArray = Array.isArray(value);
+                            return (
+                                <div className={`py-2.5 px-1 xs:col-end-13 ${(index % 2 === 0) ? "lg:col-start-1 lg:col-end-6" : "lg:col-start-8 lg:col-end-13"}`} key={key}>
+                                    <p id={convertToId(key)} className="font-normal text-[11px] break-all">
+                                        {convertToTitleCase(key)}
+                                    </p>
+                                    {isArray && value.every(item => typeof item === "object" && "courseName" in item) ? (
+                                        <div className="font-bold text-[12px] break-all space-y-1 border p-2 rounded-md">
+                                            {value.map((item: any, idx: number) => (
+                                                <p key={idx} className="text-[11px]">{item.courseName}</p>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p id={`${convertToId(key)}-value`} className="font-bold text-[12px] break-all">
+                                            {getDisplayValue(value)}
+                                        </p>
+                                    )}
+                                </div>
+                            );
+                        })
                         : (
                             <div className="grid content-center justify-center w-[100%] h-[320px] text-[#000000] opacity-10">
                                 <DocumentIcon/>
